@@ -19,10 +19,9 @@ public class ConsultationPresenter {
 
     public ConsultationBasicEvent consultationBasicEvent;
 
-
     private static ArrayList<Consultation> consultations = new ArrayList<>();
 
-    ArrayList<String> executor = new ArrayList<>(Arrays.asList("физик", "онколог", "планировщик", "врач", "лечащий врач"));
+   private  static final ArrayList<String> executor = new ArrayList<>(Arrays.asList("физик", "онколог", "планировщик", "врач", "лечащий врач"));
 
 
     public ConsultationPresenter(ConsultationModel consultationModel, ConsultationManager consultationManager) {
@@ -45,11 +44,10 @@ public class ConsultationPresenter {
         {
             Random random = new Random();
             int value = random.nextInt(executor.size());
-            consultationBasicEvent = new ConsultationBasicEvent("Радиохирургия","Some description.",
-                    consultations.get(i).getProcbegintime(),consultations.get(i).getProcendtime(),consultations.get(i).getName(),
-                    consultations.get(i).getSurname(),consultations.get(i).getPatronymic(),consultations.get(i).getDiagnosis(),
-                    consultations.get(i).getCase_history_num(),consultations.get(i).getBirthday(),
+            consultationBasicEvent = new ConsultationBasicEvent("Радиохирургия","Some description.", consultations.get(i),
                     executor.get(value));
+           consultationBasicEvent.getStart().setHours(9);
+           consultationBasicEvent.getEnd().setHours(18);
             consultationModel.consultationBasicEventBeanItemContainer.addBean(consultationBasicEvent);
         }
 

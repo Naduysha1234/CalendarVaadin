@@ -24,12 +24,10 @@ public class Consultation
 
     Date birthday;
 
-
     public Consultation()
     {
 
     }
-
 
 
     public Consultation(Date birthday, int case_history_num, String diagnosis, String patronymic, String name,

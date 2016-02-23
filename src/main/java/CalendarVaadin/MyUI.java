@@ -3,6 +3,7 @@ package CalendarVaadin;
 /**
  * Created by user on 18.02.2016.
  */
+/*
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -13,12 +14,6 @@ import com.vaadin.ui.UI;
 
 import javax.servlet.annotation.WebServlet;
 
-/**
- *
- */
-@Theme("mytheme")
-@Widgetset("CalendarVaadin.MyAppWidgetset")
-public class MyUI extends UI {
 
 
     /*
@@ -94,19 +89,3 @@ public class MyUI extends UI {
 
 */
 
-    @Override
-    protected void init(VaadinRequest vaadinRequest) {
-
-        CalendarTest calendarTest = new CalendarTest();
-        setContent(calendarTest);
-    }
-
-
-@WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
-@VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
- public static class MyUIServlet extends VaadinServlet
-{
-}
-
-
-}

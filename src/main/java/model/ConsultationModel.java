@@ -12,10 +12,8 @@ public class ConsultationModel {
 
     public final BeanItemContainer<ConsultationBasicEvent> consultationBasicEventBeanItemContainer = new BeanItemContainer<>(ConsultationBasicEvent.class);
 
-
-
     // получаем контейнер
-    public BeanItemContainer<? extends  ConsultationBasicEvent> getConsultationBAsicEventContainer() {
+    public BeanItemContainer<ConsultationBasicEvent> getConsultationBAsicEventContainer() {
         return consultationBasicEventBeanItemContainer;
     }
 

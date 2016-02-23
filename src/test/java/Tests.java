@@ -1,6 +1,6 @@
 import backend.ConsultationManager;
 import backend.entity.Consultation;
-import jdk.nashorn.internal.ir.annotations.Ignore;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -11,6 +11,8 @@ import java.util.GregorianCalendar;
  * Created by user on 22.02.2016.
  */
 public class Tests {
+
+
 
     @Ignore
     @Test

@@ -17,7 +17,6 @@ import java.util.Date;
 public class ConsultationManager {
 
 
-
     public Collection<? extends Consultation> listConsultation (Date fromDate,Date toDate) // дата будет браться от 01.01.2016 и 20.02.2016
     {
 
