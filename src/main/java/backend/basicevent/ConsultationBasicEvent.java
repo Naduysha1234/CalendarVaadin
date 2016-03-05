@@ -8,7 +8,8 @@ import java.util.Date;
 /**
  * Created by user on 20.02.2016.
  */
-public class ConsultationBasicEvent extends BasicEvent{
+public class ConsultationBasicEvent extends BasicEvent
+{
     private static final long serialVersionUID = 2820133201983036866L;
 
 
@@ -19,6 +20,8 @@ public class ConsultationBasicEvent extends BasicEvent{
     String name;
 
     String patronymic;
+
+    String styleName;
 
     int case_history_num;
 
@@ -74,11 +77,11 @@ public class ConsultationBasicEvent extends BasicEvent{
         this.birthday = birthday;
     }
 
-    public int getCas_history_num() {
+    public int getCase_history_num() {
         return case_history_num;
     }
 
-    public void setCas_history_num(int cas_history_num) {
+    public void setCase_history_num(int cas_history_num) {
         this.case_history_num = cas_history_num;
         fireEventChange();
     }
@@ -118,6 +121,16 @@ public class ConsultationBasicEvent extends BasicEvent{
 
     public void setSurname(String surname) {
         this.surname = surname;
+        fireEventChange();
+    }
+
+    public String getStyleName() {
+        return styleName;
+    }
+
+    public void setStyleName(String styleName)
+    {
+      this.styleName = styleName;
         fireEventChange();
     }
 

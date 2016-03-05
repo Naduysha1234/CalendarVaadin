@@ -8,4 +8,82 @@
   @include addons;
   @include mytheme;
 
+  // Insert your own theme rules here
+  .v-calendar .v-calendar-event-color1 {
+    color: #FFFF00;
+  }
+  .v-calendar .v-calendar-event-color4 {
+    color: #F00FFF;
+  }
+
+  .v-calendar .v-calendar-event-mycolor {
+    color:#F00FF1;
+  }
+  .v-calendar .v-calendar-event-mycolor-all-day {
+    background-color: #0F0FFF;
+  }
+  .v-calendar .v-calendar-event-mycolor .v-calendar-event-caption {
+    color: #FFF00F;
+  }
+
+  .v-calendar .v-calendar-event-mycolor .v-calendar-event-content {
+    border-color: #FF0000;
+    background-color: #FF00FF;
+  }
+
+  .v-calendar-month-sizedheight .v-calendar-month-day {
+    height: 100px;
+  }
+
+  .v-calendar-month-sizedwidth .v-calendar-month-day {
+    width: 100px;
+  }
+
+  .v-calendar-header-month-Hsized .v-calendar-header-day {
+    width: 101px;
+  }
+
+  /* for IE */
+  .v-ie6 .v-calendar-header-month-Hsized .v-calendar-header-day {
+    width: 104px;
+  }
+
+  /* for others */
+  .v-calendar-header-month-Hsized td:first-child {
+    padding-left: 21px;
+  }
+
+  .v-calendar-header-day-Hsized {
+    width: 200px;
+  }
+
+  .v-calendar-week-numbers-Vsized .v-calendar-week-number {
+    height: 100px;
+    line-height: 100px;
+  }
+
+  .v-calendar-week-wrapper-Vsized {
+    height: 400px;
+    overflow-x: hidden;
+  }
+
+  .v-calendar-times-Vsized .v-calendar-time {
+    height: 38px;
+  }
+
+  .v-calendar-times-Hsized .v-calendar-time {
+    width: 42px;
+  }
+
+  .v-calendar-day-times-Vsized .v-slot,.v-calendar-day-times-Vsized .v-slot-even {
+    height: 18px;
+  }
+
+  .v-calendar-day-times-Hsized, .v-calendar-day-times-Hsized .v-slot,.v-calendar-day-times-Hsized .v-slot-even {
+    width: 200px;
+  }
+
+
+
+
 }

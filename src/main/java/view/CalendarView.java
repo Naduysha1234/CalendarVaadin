@@ -7,7 +7,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.*;
 import com.vaadin.ui.components.calendar.CalendarComponentEvents;
-import com.vaadin.ui.components.calendar.event.BasicEvent;
+import com.vaadin.ui.components.calendar.event.BasicEventProvider;
 import com.vaadin.ui.components.calendar.event.CalendarEvent;
 import com.vaadin.ui.components.calendar.handler.BasicDateClickHandler;
 import com.vaadin.ui.components.calendar.handler.BasicWeekClickHandler;
@@ -70,6 +70,15 @@ public class CalendarView   extends GridLayout implements View {
     // Сокрытие выходных
      private CheckBox hideWeekendsButton;
 
+     // Скрытие радиохирургии
+    private  CheckBox radiosurgery;
+    //
+    private CheckBox och;
+    private CheckBox zaoch;
+    private CheckBox oncology;
+
+    public BasicEventProvider dataSource;
+
     private Mode viewMode = Mode.WEEK;
 
     public CalendarView(ConsultationModel consultationModel) {
@@ -83,28 +92,24 @@ public class CalendarView   extends GridLayout implements View {
 
         initCalendar();
         initLayoutContent();
-        addInitialEvents();
-
     }
 
     private void initCalendar()
     {
-
-        calendarComponent = new Calendar();
+        dataSource = new BasicEventProvider();
+        calendarComponent = new Calendar(dataSource);
         calendarComponent.setLocale(getLocale());
         calendarComponent.setImmediate(true);
         calendarComponent.setSizeFull();
-
-
+        calendarComponent.setContainerDataSource(consultationModel.getConsultationBAsicEventContainer());
+        editConsultationForm = new EditConsultationForm(this);
         Date today = getToday();
         calendar = new GregorianCalendar(getLocale());
         calendar.setTime(today);
         calendarComponent.getInternalCalendar().setTime(today);
-
         calendarComponent.setFirstVisibleHourOfDay(9);
         calendarComponent.setLastVisibleHourOfDay(18);
         calendarComponent.setTimeFormat(Calendar.TimeFormat.Format24H);
-
 
         // Calendar getStartDate (and getEndDate) has some strange logic which
         // returns Monday of the current internal time if no start date has been set
@@ -152,13 +157,7 @@ public class CalendarView   extends GridLayout implements View {
         controlPanel.setSpacing(true);
         controlPanel.setWidth("100%");
         controlPanel.setMargin(true);
-        controlPanel.addComponent(hideWeekendsButton);
-        controlPanel.addComponent(addNewEvent);
-        controlPanel.setComponentAlignment(hideWeekendsButton,
-                Alignment.BOTTOM_LEFT);
-        controlPanel.setComponentAlignment(addNewEvent, Alignment.BOTTOM_LEFT);
-        controlPanel.setExpandRatio(addNewEvent, 1.0f);
-
+        controlPanel.addComponents(hideWeekendsButton,addNewEvent);
 
         Label viewCaption = new Label("Calendar");
         viewCaption.setStyleName(ValoTheme.LABEL_H1);
@@ -169,70 +168,17 @@ public class CalendarView   extends GridLayout implements View {
         setRowExpandRatio(getRows() - 1, 1.0f);
 
     }
-
-    // Добавление данных
-    private void addInitialEvents()
-    {
-        Date originalDate = calendar.getTime();
-        Date today = getToday();
-        calendarComponent.setContainerDataSource(consultationModel.getConsultationBAsicEventContainer());
-        editConsultationForm = new EditConsultationForm(this);
-
-        Date start = resolveFirstDateOfWeek(today, calendar);
-        Date end = resolveLastDateOfWeek(today, calendar);
-
-        GregorianCalendar calendar1= new GregorianCalendar(2000, 11, 11);
-        Date birthday = calendar1.getTime();
-        Consultation consultation = new Consultation(birthday,11,"метастазы","Иванович","Иван",start,end,"Иванов");
-        ConsultationBasicEvent basicEvent = new ConsultationBasicEvent("Радиохирургия","Some description.",consultation,"физик");
-
-        consultationModel.consultationBasicEventBeanItemContainer.addBean(basicEvent);
-
-        calendar.setTime(originalDate);
-
-    }
-
-    private Date resolveLastDateOfWeek(Date today,
-                                       java.util.Calendar currentCalendar) {
-        currentCalendar.setTime(today);
-        currentCalendar.add(java.util.Calendar.DATE, 1);
-        int firstDayOfWeek = currentCalendar.getFirstDayOfWeek();
-        // Roll to weeks last day using firstdayofweek. Roll until FDofW is
-        // found and then roll back one day.
-        while (firstDayOfWeek != currentCalendar
-                .get(java.util.Calendar.DAY_OF_WEEK)) {
-            currentCalendar.add(java.util.Calendar.DATE, 1);
-        }
-        currentCalendar.add(java.util.Calendar.DATE, -1);
-        return currentCalendar.getTime();
-    }
-    private Date resolveFirstDateOfWeek(Date today, java.util.Calendar currentCalendar) {
-            int firstDayOfWeek = currentCalendar.getFirstDayOfWeek();
-            currentCalendar.setTime(today);
-            while (firstDayOfWeek != currentCalendar
-                    .get(java.util.Calendar.DAY_OF_WEEK)) {
-                currentCalendar.add(java.util.Calendar.DATE, -1);
-            }
-            return currentCalendar.getTime();
-        }
-
-
     private void initNavigationButtons() {
 
-        monthButton = new Button("Month", new Button.ClickListener() {
-
+        monthButton = new Button("Месяц", new Button.ClickListener() {
             private static final long serialVersionUID = 1L;
-
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 switchToMonthView();
             }
         });
-
-        weekButton = new Button("Week", new Button.ClickListener() {
-
+        weekButton = new Button("Неделя", new Button.ClickListener() {
             private static final long serialVersionUID = 1L;
-
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 // simulate week click
@@ -243,11 +189,8 @@ public class CalendarView   extends GridLayout implements View {
                         .get(GregorianCalendar.YEAR)));
             }
         });
-
-        dayButton = new Button("Day", new Button.ClickListener() {
-
+        dayButton = new Button("День", new Button.ClickListener() {
             private static final long serialVersionUID = 1L;
-
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 // simulate day click
@@ -257,19 +200,15 @@ public class CalendarView   extends GridLayout implements View {
                         calendar.getTime()));
             }
         });
-
-        nextButton = new Button("Next", new Button.ClickListener() {
+        nextButton = new Button("Вперед", new Button.ClickListener() {
             private static final long serialVersionUID = 1L;
-
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 handleNextButtonClick();
             }
         });
-
-        prevButton = new Button("Prev", new Button.ClickListener() {
+        prevButton = new Button("Назад", new Button.ClickListener() {
             private static final long serialVersionUID = 1L;
-
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 handlePreviousButtonClick();
@@ -280,11 +219,9 @@ public class CalendarView   extends GridLayout implements View {
     private void initAddNewEventButton()
     {
 
-        addNewEvent = new Button("Add new event");
+        addNewEvent = new Button("Новая консультация");
         addNewEvent.addClickListener(new Button.ClickListener() {
-
             private static final long serialVersionUID = -8307244759142541067L;
-
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 Date start = getToday();
@@ -293,32 +230,34 @@ public class CalendarView   extends GridLayout implements View {
                 start.setSeconds(0);
 
                 Date end = getEndOfDay(calendar, start);
-
                 editConsultationForm.showEventPopup(createNewEvent(start, end), true);
             }
         });
 
     }
-
-    private CalendarEvent createNewEvent(Date startDate, Date endDate) {
-        BasicEvent event = new BasicEvent();
-        event.setCaption("");
-        event.setStart(startDate);
-        event.setEnd(endDate);
-        event.setStyleName("color1");
+    private ConsultationBasicEvent getNewEvent(String caption, Date start, Date end) {
+        Consultation consultation = new Consultation(new Date(),0,"","","",start,end,"");
+        ConsultationBasicEvent event = new ConsultationBasicEvent(caption,"новая консультация",consultation,"");
+        event.setStyleName("mycolor");
+       // consultationModel.consultationBasicEventBeanItemContainer.addBean(event);
         return event;
     }
 
+    private CalendarEvent createNewEvent(Date start, Date end) {
+        Consultation consultation = new Consultation(new Date(),0,"","","",start,end,"");
+        ConsultationBasicEvent event = new ConsultationBasicEvent("Новая консультация","описание",consultation,"");
+        event.setStyleName("mycolor");
+   //     consultationModel.consultationBasicEventBeanItemContainer.addBean(event);
+        return event;
+    }
 
     private void initHideWeekEndButton() {
-        hideWeekendsButton = new CheckBox("Hide weekends");
+        hideWeekendsButton = new CheckBox("Выходные");
         hideWeekendsButton.addStyleName("small");
         hideWeekendsButton.setImmediate(true);
         hideWeekendsButton
                 .addValueChangeListener(new Property.ValueChangeListener() {
-
                     private static final long serialVersionUID = 1L;
-
                     @Override
                     public void valueChange(Property.ValueChangeEvent event) {
                         setWeekendsHidden(hideWeekendsButton.getValue());
@@ -326,13 +265,9 @@ public class CalendarView   extends GridLayout implements View {
                 });
 
     }
-
     private void addCalendarEventListeners() {
-
-
         // Register week clicks by changing the schedules start and end dates.
         calendarComponent.setHandler(new BasicWeekClickHandler() {
-
             @Override
             public void weekClick(CalendarComponentEvents.WeekClick event) {
                 // let BasicWeekClickHandler handle calendar dates, and update
@@ -344,7 +279,6 @@ public class CalendarView   extends GridLayout implements View {
         });
 
         calendarComponent.setHandler(new CalendarComponentEvents.EventClickHandler() {
-
             @Override
             public void eventClick(CalendarComponentEvents.EventClick event) {
                 editConsultationForm.showEventPopup(event.getCalendarEvent(), false);
@@ -361,9 +295,7 @@ public class CalendarView   extends GridLayout implements View {
                 switchToDayView();
             }
         });
-
         calendarComponent.setHandler(new CalendarComponentEvents.RangeSelectHandler() {
-
             @Override
             public void rangeSelect(CalendarComponentEvents.RangeSelectEvent event) {
                 handleRangeSelect(event);
@@ -420,7 +352,6 @@ public class CalendarView   extends GridLayout implements View {
         editConsultationForm.showEventPopup(createNewEvent(start, end), true);
 
     }
-
     private Date getToday() {
 
         return new Date();
@@ -512,7 +443,6 @@ public class CalendarView   extends GridLayout implements View {
         resetCalendarTime(true);
 
     }
-
     private void resetCalendarTime(boolean resetEndTime)
     {
         resetTime(resetEndTime);
@@ -523,7 +453,6 @@ public class CalendarView   extends GridLayout implements View {
             updateCaptionLabel();
         }
     }
-
     private void resetTime(boolean max) {
 
         if (max) {

@@ -4,6 +4,7 @@ import backend.ConsultationManager;
 import backend.basicevent.ConsultationBasicEvent;
 import backend.entity.Consultation;
 import model.ConsultationModel;
+import view.EditConsultationForm;
 
 import java.util.*;
 
@@ -19,9 +20,13 @@ public class ConsultationPresenter {
 
     public ConsultationBasicEvent consultationBasicEvent;
 
-    private static ArrayList<Consultation> consultations = new ArrayList<>();
+    public EditConsultationForm editConsultationForm;
 
-   private  static final ArrayList<String> executor = new ArrayList<>(Arrays.asList("физик", "онколог", "планировщик", "врач", "лечащий врач"));
+    private List<Consultation> consultations = new ArrayList<>();
+
+    private  List<Consultation> patient = new ArrayList<>();
+
+    private List<String> executor = new ArrayList<>(Arrays.asList("физик", "онколог", "планировщик", "врач", "лечащий врач"));
 
 
     public ConsultationPresenter(ConsultationModel consultationModel, ConsultationManager consultationManager) {
@@ -29,10 +34,9 @@ public class ConsultationPresenter {
         this.consultationManager = consultationManager;
     }
 
-    public void start()
-    {
+    public void start() {
 
-        GregorianCalendar calendar= new GregorianCalendar(2016, 1, 1);
+        GregorianCalendar calendar = new GregorianCalendar(2016, 1, 1);
         Date startDay = calendar.getTime();
         calendar.add(calendar.MONTH, 1);
         Date endDay = calendar.getTime();
@@ -40,16 +44,42 @@ public class ConsultationPresenter {
 
         consultations = new ArrayList<>(consultationManager.listConsultation(startDay, endDay));
 
-        for (int i=0; i < consultations.size();i++)
-        {
+        for (int i = 0; i < consultations.size(); i++) {
             Random random = new Random();
             int value = random.nextInt(executor.size());
-            consultationBasicEvent = new ConsultationBasicEvent("Радиохирургия","Some description.", consultations.get(i),
+            consultationBasicEvent = new ConsultationBasicEvent("Радиохирургия", "Some description.", consultations.get(i),
                     executor.get(value));
-           consultationBasicEvent.getStart().setHours(9);
-           consultationBasicEvent.getEnd().setHours(18);
+            consultationBasicEvent.setStyleName("mycolor");
+            consultationBasicEvent.getStart().setHours(9);
+            consultationBasicEvent.getEnd().setHours(18);
             consultationModel.consultationBasicEventBeanItemContainer.addBean(consultationBasicEvent);
         }
 
     }
+
+    /*
+    @Override
+    public void clickCheck(ConsultationBasicEvent consultationBasicEvent)
+    {
+        String name = consultationBasicEvent.getName();
+        String surname = consultationBasicEvent.getSurname();
+        String  patronymic = consultationBasicEvent.getPatronymic();
+        int case_history_num = consultationBasicEvent.getCase_history_num();
+        patient= new ArrayList<>(consultationManager.listpatient(name, surname, patronymic, case_history_num));
+        if(patient.size() == 0)
+        {
+
+
+
+        }
+
+
+        */
+
+
+
+
+
 }
+
+

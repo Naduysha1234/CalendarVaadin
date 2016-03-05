@@ -17,7 +17,7 @@ import java.util.Date;
 public class ConsultationManager {
 
 
-    public Collection<? extends Consultation> listConsultation (Date fromDate,Date toDate) // дата будет браться от 01.01.2016 и 20.02.2016
+    public Collection<? extends Consultation> listConsultation(Date fromDate, Date toDate) // дата будет браться от 01.01.2016 и 20.02.2016
     {
 
         try (
@@ -39,16 +39,73 @@ public class ConsultationManager {
 
             String to = Util.getDate(toDate);
             String from = Util.getDate(fromDate);
-            sql = String.format(sql,from,to);
+            sql = String.format(sql, from, to);
             BeanListHandler<Consultation> handler = new BeanListHandler<>(Consultation.class); //
-            return qr.query(con,sql, handler);
+            return qr.query(con, sql, handler);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /*
+
+    // Добавление данных в таблицу пациентов
+    // Добавление не всех данных из таблицы а часть?
+    public int insertConsultation(Consultation consultation) {
+        try (
+                Connection con = DB.getConnection()
+        ) {
+            QueryRunner qr = new QueryRunner();
+            String sql = "insert INTO  nbc_patients() VALUES(?,?,?,?) ";
+            Object[] params = new Object[]{consultation.getProcbegintime(), consultation.getProcendtime(), consultation.getName(),
+                    consultation.getSurname(), consultation.getPatronymic(), consultation.getDiagnosis(),
+                    consultation.getCase_history_num(), consultation.getBirthday()};
+            int updateRows = qr.update(con, sql, params); // количество обновлевленных строчек
+            return updateRows;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
+
+
+    // ПРоверка что существует пациент
+   // еще должен быть какой то параметр(номер истории болезни),потому что есть человек у которого совпадают фвмилия имя  отчество
+
+    public  Collection<? extends Consultation> listpatient (String name,String surname,String patronymic,int case_history_num)
+
+    {
+
+
+        try (
+                Connection con = DB.getConnection()
+        ) {
+            QueryRunner qr = new QueryRunner();
+            String sql = "select   where ";
+
+            Object[] params = new Object[]{};
+
+            BeanListHandler<Consultation> handler = new BeanListHandler<>(Consultation.class);
+            return qr.query(con, sql,  handler);
+
+            // Что возвращать ? количество строк или данные выбирая и еще другик данные
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
 
-
     }
+
+    */
+
 
 
 }
+
+
+
+
