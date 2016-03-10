@@ -5,9 +5,6 @@ import com.vaadin.ui.components.calendar.event.BasicEvent;
 
 import java.util.Date;
 
-/**
- * Created by user on 20.02.2016.
- */
 public class ConsultationBasicEvent extends BasicEvent
 {
     private static final long serialVersionUID = 2820133201983036866L;
@@ -142,6 +139,21 @@ public class ConsultationBasicEvent extends BasicEvent
     public void setExecutor(String executor) {
         this.executor = executor;
         fireEventChange();
+    }
+
+
+    @Override
+    public String toString() {
+        return "ConsultationBasicEvent{" +
+            "birthday=" + birthday +
+            ", executor='" + executor + '\'' +
+            ", surname='" + surname + '\'' +
+            ", name='" + name + '\'' +
+            ", patronymic='" + patronymic + '\'' +
+            ", styleName='" + styleName + '\'' +
+            ", case_history_num=" + case_history_num +
+            ", diagnosis='" + diagnosis + '\'' +
+            '}';
     }
 
 }

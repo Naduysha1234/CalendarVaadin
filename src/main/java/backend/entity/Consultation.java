@@ -2,9 +2,6 @@ package backend.entity;
 
 import java.util.Date;
 
-/**
- * Created by user on 20.02.2016.
- */
 public class Consultation
 {
 
@@ -27,8 +24,8 @@ public class Consultation
     public Consultation()
     {
 
-    }
 
+    }
 
     public Consultation(Date birthday, int case_history_num, String diagnosis, String patronymic, String name,
                         Date procbegintime, Date procendtime, String surname) {
@@ -42,6 +39,18 @@ public class Consultation
         this.surname = surname;
     }
 
+    public Consultation(Patient patient,Date procbegintime,Date procendtime)
+    {
+        this.birthday = patient.getBirthday();
+        this.case_history_num = patient.getCase_history_num();
+        this.diagnosis = patient.getDiagnosis();
+        this.patronymic = patient.getPatronymic();
+        this.name = patient.getName();
+        this.procbegintime = procbegintime;
+        this.procendtime = procendtime;
+        this.surname = patient.getSurname();
+
+    }
 
     public Date getProcbegintime ( )
     {
@@ -114,7 +123,6 @@ public class Consultation
     public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
-
 
     @Override
     public String toString() {

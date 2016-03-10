@@ -31,20 +31,14 @@ public class App extends UI {
 
         ConsultationManager consultationManager = new ConsultationManager();
         ConsultationPresenter consultationPresenter = new ConsultationPresenter(consultationModel,consultationManager);
+        calendarView.setPresenter(consultationPresenter);
         consultationPresenter.start();
 
     }
-
-
-
     @WebServlet(urlPatterns = "/*", name = "AppServlet", asyncSupported = true)
     @VaadinServletConfiguration(ui = App.class, productionMode = false)
     public static class AppServlet extends VaadinServlet
-    {
-
-
-
-    }
+    {   }
 
 
 

@@ -9,13 +9,10 @@ import com.vaadin.data.util.BeanItemContainer;
 public class ConsultationModel {
 
 
-
     public final BeanItemContainer<ConsultationBasicEvent> consultationBasicEventBeanItemContainer = new BeanItemContainer<>(ConsultationBasicEvent.class);
-
- //   public final BasicEventProvider dataSource = new BasicEventProvider();
-    // получаем контейнер
     public BeanItemContainer<ConsultationBasicEvent> getConsultationBAsicEventContainer() {
         return consultationBasicEventBeanItemContainer;
     }
+
 
 }

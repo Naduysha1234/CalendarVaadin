@@ -13,6 +13,7 @@ import com.vaadin.ui.components.calendar.handler.BasicDateClickHandler;
 import com.vaadin.ui.components.calendar.handler.BasicWeekClickHandler;
 import com.vaadin.ui.themes.ValoTheme;
 import model.ConsultationModel;
+import presenter.ConsultationPresenter;
 
 import java.text.DateFormatSymbols;
 import java.util.Date;
@@ -63,6 +64,8 @@ public class CalendarView   extends GridLayout implements View {
 
     // Добавить новую консультацию
     private Button addNewEvent;
+
+    private ConsultationPresenter presenter;
 
 
     EditConsultationForm editConsultationForm;
@@ -125,6 +128,14 @@ public class CalendarView   extends GridLayout implements View {
         addCalendarEventListeners();
     }
 
+    public void setPresenter(ConsultationPresenter presenter) {
+        this.presenter = presenter;
+    }
+
+    public  ConsultationPresenter getPresenter()
+    {
+        return  presenter;
+    }
     private void initLayoutContent()
     {
         initNavigationButtons();
@@ -239,15 +250,17 @@ public class CalendarView   extends GridLayout implements View {
         Consultation consultation = new Consultation(new Date(),0,"","","",start,end,"");
         ConsultationBasicEvent event = new ConsultationBasicEvent(caption,"новая консультация",consultation,"");
         event.setStyleName("mycolor");
-       // consultationModel.consultationBasicEventBeanItemContainer.addBean(event);
+        consultationModel.consultationBasicEventBeanItemContainer.addBean(event);
+        editConsultationForm.patientCombobox.removeContainerProperty(editConsultationForm.basicEvent);
         return event;
     }
 
     private CalendarEvent createNewEvent(Date start, Date end) {
         Consultation consultation = new Consultation(new Date(),0,"","","",start,end,"");
-        ConsultationBasicEvent event = new ConsultationBasicEvent("Новая консультация","описание",consultation,"");
+        ConsultationBasicEvent event = new ConsultationBasicEvent("новая консультация","описание",consultation,"");
         event.setStyleName("mycolor");
-   //     consultationModel.consultationBasicEventBeanItemContainer.addBean(event);
+       consultationModel.consultationBasicEventBeanItemContainer.addBean(event);
+
         return event;
     }
 

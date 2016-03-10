@@ -1,9 +1,8 @@
 import backend.ConsultationManager;
-import backend.entity.Consultation;
+import backend.entity.Patient;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -14,6 +13,7 @@ public class Tests {
 
 
 
+    /*
     @Ignore
     @Test
     public void patients(){
@@ -24,5 +24,25 @@ public class Tests {
         Collection<? extends Consultation>  consultations =  new ConsultationManager().listConsultation(startDay,endDay);
         System.out.println(consultations);
     }
+
+*/
+
+
+    @Ignore
+    @Test
+    public  void selectpatient() {
+        GregorianCalendar calendar = new GregorianCalendar(1972, 9, 5);
+        Date startDay = calendar.getTime();
+        System.out.println(startDay);
+        String name = "Сергей";
+        String surname = "Савельев";
+        String patronymic = "Сергеевич";
+        Patient patient = new ConsultationManager().selectpatient(name, surname, patronymic,startDay);
+        System.out.println(patient);
+    }
+
+
+
+
 
 }

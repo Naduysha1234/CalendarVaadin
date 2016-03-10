@@ -3,15 +3,16 @@ package presenter;
 import backend.ConsultationManager;
 import backend.basicevent.ConsultationBasicEvent;
 import backend.entity.Consultation;
+import backend.entity.Patient;
+import com.vaadin.ui.components.calendar.event.CalendarEvent;
 import model.ConsultationModel;
-import view.EditConsultationForm;
 
 import java.util.*;
 
 /**
  * Created by user on 20.02.2016.
  */
-public class ConsultationPresenter {
+public class ConsultationPresenter implements  Presenter {
 
 
     public final ConsultationModel consultationModel;
@@ -20,12 +21,13 @@ public class ConsultationPresenter {
 
     public ConsultationBasicEvent consultationBasicEvent;
 
-    public EditConsultationForm editConsultationForm;
+    public Consultation  consultation;
 
     private List<Consultation> consultations = new ArrayList<>();
 
     private  List<Consultation> patient = new ArrayList<>();
 
+    public static final ArrayList<String> PROCEDURES = new ArrayList<>(Arrays.asList("Радиохирургия","Заочная консультация","Очная консультация","Оннкология"));
     private List<String> executor = new ArrayList<>(Arrays.asList("физик", "онколог", "планировщик", "врач", "лечащий врач"));
 
 
@@ -33,6 +35,12 @@ public class ConsultationPresenter {
         this.consultationModel = consultationModel;
         this.consultationManager = consultationManager;
     }
+
+    /*
+     *
+     *
+     *
+     */
 
     public void start() {
 
@@ -42,7 +50,7 @@ public class ConsultationPresenter {
         Date endDay = calendar.getTime();
 
 
-        consultations = new ArrayList<>(consultationManager.listConsultation(startDay, endDay));
+        consultations = consultationManager.listConsultation(startDay, endDay);
 
         for (int i = 0; i < consultations.size(); i++) {
             Random random = new Random();
@@ -56,30 +64,18 @@ public class ConsultationPresenter {
         }
 
     }
-
     /*
+    *
+    *
+    */
     @Override
-    public void clickCheck(ConsultationBasicEvent consultationBasicEvent)
-    {
-        String name = consultationBasicEvent.getName();
-        String surname = consultationBasicEvent.getSurname();
-        String  patronymic = consultationBasicEvent.getPatronymic();
-        int case_history_num = consultationBasicEvent.getCase_history_num();
-        patient= new ArrayList<>(consultationManager.listpatient(name, surname, patronymic, case_history_num));
-        if(patient.size() == 0)
-        {
-
-
-
-        }
-
-
-        */
-
-
-
-
-
+    public ConsultationBasicEvent onItemSelected(CalendarEvent calendarEvent,Patient item) {
+        Patient patient = consultationManager.selectpatient(item.getName(),item.getSurname(),item.getPatronymic(),item.getBirthday());
+        Consultation consultation = new Consultation(patient,calendarEvent.getStart(),calendarEvent.getEnd());
+        ConsultationBasicEvent basicEvent = new ConsultationBasicEvent
+            (calendarEvent.getCaption(),calendarEvent.getDescription(),consultation,"");
+        return basicEvent;
+    }
 }
 
 

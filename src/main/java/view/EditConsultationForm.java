@@ -1,6 +1,8 @@
 package view;
 
+import backend.PatientContainer;
 import backend.basicevent.ConsultationBasicEvent;
+import backend.entity.Patient;
 import com.vaadin.data.Property;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.BeanItem;
@@ -9,24 +11,29 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.components.calendar.event.BasicEvent;
 import com.vaadin.ui.components.calendar.event.BasicEventProvider;
 import com.vaadin.ui.components.calendar.event.CalendarEvent;
+import presenter.ConsultationPresenter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by user on 23.02.2016.
  */
-public class EditConsultationForm
+public class EditConsultationForm implements BaseView
 {
 
     private TextField captionField;
 
-    private Window scheduleEventPopup;
+    public Window scheduleEventPopup;
 
     private final FormLayout scheduleEventFieldLayout = new FormLayout();
 
     private FieldGroup scheduleEventFieldGroup = new FieldGroup();
 
-    private Button deleteEventButton;
+    public Button deleteEventButton;
 
-    private Button applyEventButton;
+    public Button applyEventButton;
 
     private DateField startDateField;
 
@@ -36,75 +43,128 @@ public class EditConsultationForm
 
     private BasicEventProvider dataSource;
 
+    public ConsultationBasicEvent basicEvent;
+
     private boolean useSecondResolution;
 
-    CalendarView calendarView;
+    public final PatientCombobox patientCombobox;
 
+    private final PatientContainer patientContainer ;
+
+    private final ComboboxView comboboxView;
+
+    public CalendarView calendarView;
+
+    public  final TextField nameField;
+
+    public final TextField surnameField;
+
+    public final TextField patronymicField;
+
+    public final DateField  birthdayField;
+
+    public final TextField casHisField;
+
+    private CalendarEvent calendarEvent;
+
+    private NativeSelect selectProcedure;
+
+    private NativeSelect selectStyle;
+
+    private NativeSelect selectDiagnosis;
+
+    private  FieldGroup fieldGroup;
+
+    public static final List<String> styles = new ArrayList<>(Arrays.asList("color1", "color2", "color3", "color4", "color5"));
+
+    public static final List <String> diagnosis = new ArrayList<>(Arrays.asList("Сосудистые заболевания",
+        "АВМ-Артерио-венозная мальформация","Другое сосудистое заболевание","Доброкачественные опухоли",
+        "Менингиома","Множественные метастазы"));
     public EditConsultationForm(CalendarView calendarView)
-
     {
-
         this.calendarView = calendarView;
         this.calendarComponent = calendarView.calendarComponent;
         this.dataSource = calendarView.dataSource;
+        patientCombobox = new PatientCombobox("Быстрый ввод");
+        patientContainer = new PatientContainer();
+        comboboxView = new ComboboxView(this);
+        nameField = createTextField("Имя");
+        surnameField = createTextField("Фамилия");
+        patronymicField = createTextField("Отчество");
+        birthdayField = createDateField("Дата рождения");
+        casHisField = createTextField("Номер истории");
+
     }
 
-    // Показывание всплывающего окна
-    public void showEventPopup(CalendarEvent event, boolean newEvent) {
+    /*
+    *
+    *
+     */
+    public void showEventPopup(CalendarEvent event, boolean newEvent)
+    {
+        calendarEvent = event;
         if (event == null) {
             return;
         }
-
-        updateCalendarEventPopup(newEvent); // Создали форму в которой есть formlayout и кнопки удалить принять отмена
-        updateCalendarEventForm(event); // связываение с beanItemcontainer
-        // TODO this only works the first time
-        captionField.focus();
+        updateCalendarEventPopup(newEvent);
+       updateCalendarEventForm(calendarEvent);
 
         if (!calendarView.getUI().getWindows().contains(scheduleEventPopup)) {
             calendarView.getUI().addWindow(scheduleEventPopup);
         }
-
     }
-    private void updateCalendarEventPopup(boolean newEvent) {
+    private void updateCalendarEventPopup(boolean newEvent)
+    {
         if (scheduleEventPopup == null) {
-            createCalendarEventPopup(); // cоздали окно
+            createCalendarEventPopup();
         }
-
-        if (newEvent) { // в случае если newEvent = true добавляем новое событие
+        if (newEvent) {
             scheduleEventPopup.setCaption("Новая консультация");
-        } else {
-            scheduleEventPopup.setCaption("Редактирование консультаций"); // редактируем событие
-        }
+            patientCombobox.removeAllItems();
 
+
+        } else {
+            scheduleEventPopup.setCaption("Редактирование консультации");
+
+        }
         deleteEventButton.setVisible(!newEvent);
         deleteEventButton.setEnabled(!calendarView.calendarComponent.isReadOnly());
         applyEventButton.setEnabled(! calendarView.calendarComponent.isReadOnly());
     }
 
 
-    /* Initializes a modal window to edit schedule event. */
+    /*
+     *
+     *
+     */
     private void createCalendarEventPopup() {
         VerticalLayout layout = new VerticalLayout();
-        // layout.setMargin(true);
+         layout.setMargin(true);
         layout.setSpacing(true);
 
         scheduleEventPopup = new Window(null, layout);
-        scheduleEventPopup.setWidth("300px");
+        scheduleEventPopup.setSizeFull();
         scheduleEventPopup.setModal(true);
         scheduleEventPopup.center();
 
         scheduleEventFieldLayout.addStyleName("light");
         scheduleEventFieldLayout.setMargin(false);
-        layout.addComponent(scheduleEventFieldLayout);  // добавили formlayout в котором будут нужные поля
-
+        layout.addComponent(scheduleEventFieldLayout);
         applyEventButton = new Button("Применить", new Button.ClickListener() {
-
             private static final long serialVersionUID = 1L;
-
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 try {
-                    commitCalendarEvent();
+
+                    if (basicEvent != null)
+                    {
+                        comboboxView.commitConsultationEvent();
+                    }
+                    else
+                    {
+                        commitCalendarEvent();
+                    }
+
                 } catch (FieldGroup.CommitException e) {
                     e.printStackTrace();
                 }
@@ -112,18 +172,20 @@ public class EditConsultationForm
         });
         applyEventButton.addStyleName("primary");
         Button cancel = new Button("Отмена", new Button.ClickListener() {
-
             private static final long serialVersionUID = 1L;
-
             @Override
             public void buttonClick(Button.ClickEvent event) {
-                discardCalendarEvent();
+           //     if (basicEvent != null)
+           //    {
+           //        comboboxView.discardConsultationBasicEvent();
+            //   }
+            //    else {
+                    discardCalendarEvent();
+            //    }
             }
         });
         deleteEventButton = new Button("Удалить", new Button.ClickListener() {
-
             private static final long serialVersionUID = 1L;
-
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 deleteCalendarEvent();
@@ -131,14 +193,16 @@ public class EditConsultationForm
         });
         deleteEventButton.addStyleName("borderless");
         scheduleEventPopup.addCloseListener(new Window.CloseListener() {
-
             private static final long serialVersionUID = 1L;
-
             @Override
             public void windowClose(Window.CloseEvent e) {
                 discardCalendarEvent();
             }
         });
+        patientCombobox.setItemCaptionMode(AbstractSelect.ItemCaptionMode.PROPERTY);
+        patientCombobox.setItemCaptionPropertyId("name,surname,patronymic,birthday");
+        patientCombobox.setImmediate(true);
+        onItemSelected();
 
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.addStyleName("v-window-bottom-toolbar");
@@ -150,103 +214,146 @@ public class EditConsultationForm
         buttons.setComponentAlignment(applyEventButton, Alignment.TOP_RIGHT);
         buttons.addComponent(cancel);
         layout.addComponent(buttons);
-
+    }
+    /*
+    *
+    *
+    *
+    */
+    @Override
+    public void onItemSelected() {
+        patientCombobox.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent event) {
+                Notification.show("Selected item: " + event.getProperty().getValue(), Notification.Type.HUMANIZED_MESSAGE);
+                // tell the custom container that a value has been selected. This is necessary to ensure that the
+                // selected value is displayed by the ComboBox
+                Patient patient = (Patient) event.getProperty().getValue();
+                if ( patient == null)
+                {
+                    patientCombobox.setValue(null);
+                }
+                else {
+                    patientContainer.setSelectedPatientBean(patient);
+                    if (calendarView.getPresenter() != null) {
+                        basicEvent = calendarView.getPresenter().onItemSelected(calendarEvent, patient);
+                        System.out.println(basicEvent);
+                        comboboxView.bindField(basicEvent);
+                    }
+                }
+            }
+        });
+        patientCombobox.setContainerDataSource(patientContainer);
     }
 
-    private void updateCalendarEventForm(CalendarEvent event) { // Связывание data sourse c field c помощью FieldGroup
+
+
+    private void updateCalendarEventForm(CalendarEvent event)
+    {
         BeanItem<CalendarEvent> item = new BeanItem<CalendarEvent>(event);
-        scheduleEventFieldLayout.removeAllComponents(); // зачем это?
+        scheduleEventFieldLayout.removeAllComponents();
         scheduleEventFieldGroup = new FieldGroup();
         initFormFields(scheduleEventFieldLayout, event.getClass());
         scheduleEventFieldGroup.setBuffered(true);
         scheduleEventFieldGroup.setItemDataSource(item);
     }
 
-    private void initFormFields(Layout formLayout, Class<? extends CalendarEvent> eventClass) // Cоздаем поля
+    /*
+    *
+    *
+    */
+    private void initFormFields(Layout formLayout, Class<? extends CalendarEvent> eventClass)
     {
-
         startDateField = createDateField("Конец события");
-
+        startDateField.setRequired(true);
         endDateField = createDateField("Начало события");
-
+        endDateField.setRequired(true);
         final CheckBox allDayField = createCheckBox("All-day");
-
         allDayField.addValueChangeListener(new Property.ValueChangeListener() {
-
             private static final long serialVersionUID = -7104996493482558021L;
-
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
                 Object value = event.getProperty().getValue();
                 if (value instanceof Boolean && Boolean.TRUE.equals(value)) {
                     setFormDateResolution(Resolution.DAY);
-
                 } else {
                     setFormDateResolution(Resolution.MINUTE);
                 }
             }
-
         });
-        captionField = createTextField("Caption");
-        captionField.setInputPrompt("Event name");
+
+        selectProcedure = createNativeSelect(ConsultationPresenter.PROCEDURES, "Вид консультации");
+        selectProcedure.setRequired(true);
+        selectStyle = createNativeSelect(styles, "Цвет");
+        captionField = createTextField("Заголовок");
+        captionField.setInputPrompt("Название события");
         captionField.setRequired(true);
-        final TextField executorField = createTextField("Executor");
-          executorField.setInputPrompt("who");
-        final TextArea descriptionField = createTextArea("Description");
-        final TextField nameField = createTextField("Name");
-        executorField.setInputPrompt("patients name");
-
-        final TextField surnameField = createTextField("Surname");
-        executorField.setInputPrompt("patients surname");
-
-        final TextField patronymicField = createTextField("Patronymic");
-        executorField.setInputPrompt("patients patronymic");
-
-      //  final DateField dateField =  createDateField("Дата Рождения");
-
-        descriptionField.setInputPrompt("Describe the event");
+        final TextField executorField = createTextField("Исполнитель");
+        executorField.setInputPrompt("человек,отвественный за процедуру");
+        final TextArea descriptionField = createTextArea("Описание");
+        descriptionField.setInputPrompt("");
         descriptionField.setRows(3);
-        // descriptionField.setRequired(true);
+        nameField.setInputPrompt("имя пациента");
+        surnameField.setInputPrompt("фамилия пациента");
+        patronymicField.setInputPrompt("отчество пациента");
 
-
-        // Combobox для выбора календаря
-  //      final ComboBox styleNameField = createStyleNameComboBox();
-    //    styleNameField.setInputPrompt("Choose calendar");
-    //    styleNameField.setTextInputAllowed(false);
-
-        formLayout.addComponent(startDateField);
-        // startDateField.setRequired(true);
-        formLayout.addComponent(endDateField);
+        HorizontalLayout hlLayout = new HorizontalLayout(startDateField,endDateField);
+        formLayout.addComponent(hlLayout);
         formLayout.addComponent(allDayField);
         formLayout.addComponent(captionField);
+        formLayout.addComponent(patientCombobox);
+        formLayout.addComponent(selectProcedure);
+        formLayout.addComponent(selectStyle);
+        formLayout.addComponent(executorField);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(nameField,surnameField,
+            patronymicField,birthdayField,casHisField);
+         formLayout.addComponent(horizontalLayout);
 
-
-
+        /*
        if (eventClass == ConsultationBasicEvent.class) {
            formLayout.addComponent(executorField);
            formLayout.addComponent(nameField);
            formLayout.addComponent(surnameField);
            formLayout.addComponent(patronymicField);
+          formLayout.addComponent(birthdayField);
        }
-        formLayout.addComponent(descriptionField);
-    //   formLayout.addComponent(styleNameField);
-
+       */
         scheduleEventFieldGroup.bind(startDateField, "start");
         scheduleEventFieldGroup.bind(endDateField, "end");
         scheduleEventFieldGroup.bind(captionField, "caption");
         scheduleEventFieldGroup.bind(descriptionField, "description");
+        scheduleEventFieldGroup.bind(executorField, "executor");
+        scheduleEventFieldGroup.bind(nameField,"name");
+        scheduleEventFieldGroup.bind(surnameField,"surname");
+        scheduleEventFieldGroup.bind(patronymicField,"patronymic");
+        scheduleEventFieldGroup.bind(birthdayField,"birthday");
+        scheduleEventFieldGroup.bind(casHisField,"case_history_num");
+        scheduleEventFieldGroup.bind(selectStyle, "styleName");
+        scheduleEventFieldGroup.bind(allDayField, "allDay");
 
+        /*
         if (eventClass == ConsultationBasicEvent.class) {
             scheduleEventFieldGroup.bind(executorField, "executor");
             scheduleEventFieldGroup.bind(nameField,"name");
             scheduleEventFieldGroup.bind(surnameField,"surname");
             scheduleEventFieldGroup.bind(patronymicField,"patronymic");
-        }
+            scheduleEventFieldGroup.bind(birthdayField,"birthday");
 
-     //   scheduleEventFieldGroup.bind(styleNameField, "styleName");
-        scheduleEventFieldGroup.bind(allDayField, "allDay");
+        }
+        */
     }
 
+    /*
+    *
+    *
+    *
+     */
+    private NativeSelect createNativeSelect(List<String> strings, String caption) {
+        NativeSelect nativeSelect = new NativeSelect(caption, strings);
+        nativeSelect.setRequired(true);
+        nativeSelect.setBuffered(true);
+        return nativeSelect;
+    }
 
     private void setFormDateResolution(Resolution resolution) {
         if (startDateField != null && endDateField != null) {
@@ -254,10 +361,8 @@ public class EditConsultationForm
             endDateField.setResolution(resolution);
         }
     }
-
-
     @SuppressWarnings("unchecked")
-    private BasicEvent getFormCalendarEvent() {
+    public BasicEvent getFormCalendarEvent() {
         BeanItem<CalendarEvent> item = (BeanItem<CalendarEvent>) scheduleEventFieldGroup
                 .getItemDataSource();
         CalendarEvent event = item.getBean();
@@ -269,7 +374,6 @@ public class EditConsultationForm
         cb.setImmediate(true);
         return cb;
     }
-
     private TextField createTextField(String caption) {
         TextField f = new TextField(caption);
         f.setNullRepresentation("");
@@ -291,24 +395,6 @@ public class EditConsultationForm
         }
         return f;
     }
-
-    /*
-    private ComboBox createStyleNameComboBox() {
-        ComboBox s = new ComboBox("Calendar");
-        s.addContainerProperty("c", String.class, "");
-        s.setItemCaptionPropertyId("c");
-        Item i = s.addItem("color1");
-        i.getItemProperty("c").setValue("Work");
-        i = s.addItem("color2");
-        i.getItemProperty("c").setValue("Personal");
-        i = s.addItem("color3");
-        i.getItemProperty("c").setValue("Family");
-        i = s.addItem("color4");
-        i.getItemProperty("c").setValue("Hobbies");
-        return s;
-    }
-    */
-    /* Adds/updates the event in the data source and fires change event. */
     private void commitCalendarEvent() throws FieldGroup.CommitException {
         scheduleEventFieldGroup.commit();
         BasicEvent event = getFormCalendarEvent();
@@ -321,17 +407,19 @@ public class EditConsultationForm
 
         calendarView.getUI().removeWindow(scheduleEventPopup);
     }
-    /* Removes the event from the data source and fires change event. */
+
     private void deleteCalendarEvent() {
         BasicEvent event = getFormCalendarEvent();
         if (dataSource.containsEvent(event)) {
             dataSource.removeEvent(event);
         }
+     //   patientCombobox.clear();
         calendarView.getUI().removeWindow(scheduleEventPopup);
     }
 
     private void discardCalendarEvent() {
         scheduleEventFieldGroup.discard();
+
         calendarView.getUI().removeWindow(scheduleEventPopup);
     }
 
